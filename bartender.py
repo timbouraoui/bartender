@@ -318,11 +318,7 @@ def drink_request(drink, quantity):
 	return statement('You\'ve requested {} {}'.format(quantity, drink))
 
 if __name__ == '__main__':
-	try:
-		if 'ASK_VERIFY_REQUESTS' in os.environ:
-			if str(os.environ.get('ASK_VERIFY_REQUESTS', '')).lower() == 'false':
-				app.config['ASK_VERIFY_REQUESTS'] = False
-			app.run(debug=True)
-	except KeyboardInterrupt:
-		print('keyboard interrupt occurred')
-		GPIO.cleanup()
+	if 'ASK_VERIFY_REQUESTS' in os.environ:
+		if str(os.environ.get('ASK_VERIFY_REQUESTS', '')).lower() == 'false':
+			app.config['ASK_VERIFY_REQUESTS'] = False
+		app.run(debug=True)

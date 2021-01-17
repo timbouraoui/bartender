@@ -12,7 +12,7 @@ from flask_ask import Ask, request, session, question, statement
 from drinks import drink_list
 
 GPIO.setmode(GPIO.BCM)
-# GPIO.setwarnings(False)
+GPIO.setwarnings(False)
 
 # stepper pins
 PIN_STP = 2
@@ -279,8 +279,6 @@ class Bartender:
 		GPIO.output(pin, GPIO.HIGH)
 		time.sleep(amount)
 		GPIO.output(pin, GPIO.LOW)
-
-
 
 app = Flask(__name__)
 ask = Ask(app, '/')

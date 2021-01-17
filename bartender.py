@@ -167,22 +167,23 @@ class Bartender:
 
 	# load in pumps and ingredients from json
 	def load_pump_list(self):
-		file = open("pump_config.json", "r")
+		file = open('pump_config.json', 'r')
 		self.pump_list = json.load(file)
 		file.close()
 
 	# setup pump pins as gpio outputs
 	def init_pump_gpios(self):
-		for pump, pump_info in self.pump_list:
-			GPIO.setup(pump_info["pin"], GPIO.OUT)
+		for pump in self.pump_list:
+			GPIO.setup(self.pump_list[pump]['pin'], GPIO.OUT)
 
 	# update pump when switching over to ingredient
 	def update_pump_list(self, pump_id, ingredient):
 		if pump_id > 0 & pump_id < 9:
-			for pump, pump_info in self.pump_list:
-				if pump_info["id"] == pump_id:	pump["ingredient"] = ingredient
+			for pump in self.pump_list:
+					if self.pump_list[pump]['id'] == pump_id:
+						self.pump_list[pump]['ingredient'] = ingredient
 
-			file = open("pump_config.json", "w")
+			file = open('pump_config.json', 'w')
 			json.dump(self.pump_list, file)
 			file.close()
 
@@ -198,17 +199,17 @@ class Bartender:
 	def clean_pump(self, pump_id, cup_location):
 		self.my_table.set_table_location(cup_location-1)
 
-		for pump, pump_info in self.pump_list:
-			if pump_info["id"] == pump_id:
-				self.pour(pump_info["pin"], self.CLEANING_DIST)
+		for pump in self.pump_list:
+			if self.pump_list[pump]['id'] == pump_id:
+				self.pour(self.pump_list[pump]['pin'], self.CLEANING_DIST)
 
 	# cleans all pumps
 	def clean_all_pumps(self, cup_location):
 		self.my_table.set_table_location(cup_location-1)
 
 		pumpThreads = []
-		for pump, pump_info in self.pump_list:
-			pump_t = threading.Thread(target=self.pour, args=(pump_info["pin"], self.cLEANING_DIST*self.FLOW_RATE))
+		for pump in self.pump_list:
+			pump_t = threading.Thread(target=self.pour, args=(self.pump_list[pump]['pin'], self.cLEANING_DIST*self.FLOW_RATE))
 			pumpThreads.append(pump_t)
 
 		# start the pump threads
@@ -224,8 +225,8 @@ class Bartender:
 		self.my_table.set_table_location(cup_location-1)
 
 		pumpThreads = []
-		for pump, pump_info in self.pump_list:
-			pump_t = threading.Thread(target=self.pour, args=(pump_info["pin"], self.PRIMING_DIST*self.FLOW_RATE))
+		for pump in self.pump_list:
+			pump_t = threading.Thread(target=self.pour, args=(self.pump_list[pump]['pin'], self.PRIMING_DIST*self.FLOW_RATE))
 			pumpThreads.append(pump_t)
 
 		# start the pump threads
@@ -240,20 +241,19 @@ class Bartender:
 	def prime_pump(self, pump_id, cup_location):
 		self.my_table.set_table_location(cup_location-1)
 
-		for pump, pump_info in self.pump_list:
-			if pump_info["id"] == pump_id:
-				self.pour(pump_info["pin"], self.PRIMING_DIST)
+		for pump in self.pump_list:
+			if self.pump_list[pump]['id'] == pump_id:
+				self.pour(self.pump_list[pump]['pin'], self.PRIMING_DIST)
 
 	#adds drinks from drink_list to the menu if all ingredients are hooked up to the pump
 	def build_menu(self, drink_list):
 		self.current_menu = []
 		for drink in drink_list:
 			drink_flag = 1
-			for ingredient in drink["ingredients"].keys():
+			for ingredient in drink['ingredients']:
 				ingredient_flag = 0
-				for pump, pump_info in self.pump_list:
-					print(ingredient + " " + pump_info["ingredient"])
-					if ingredient == pump_info["ingredient"]:
+				for pump in self.pump_list:
+					if ingredient == self.pump_list[pump]['ingredient']:
 						ingredient_flag = 1
 				if not ingredient_flag: drink_flag = 0
 			if drink_flag:	self.current_menu.append(drink)
@@ -262,10 +262,10 @@ class Bartender:
 		self.my_table.set_table_location(cup_location-1)
 
 		pumpThreads = []
-		for ingredient, amount in drink["ingredients"]:
-			for pump, pump_info in self.pump_list:
-				if ingredient == pump_info["ingredient"]:
-					pump_t = threading.Thread(target=self.pour, args=(pump_info["pin"], amount*self.FLOW_RATE))
+		for ingredient in drink['ingredients']:
+			for pump in self.pump_list:
+				if ingredient == self.pump_list[pump]['ingredient']:
+					pump_t = threading.Thread(target=self.pour, args=(self.pump_list[pump]['pin'], drink['ingredients'][ingredient]*self.FLOW_RATE))
 					pumpThreads.append(pump_t)
 
 		# start the pump threads
@@ -284,7 +284,7 @@ class Bartender:
 
 
 app = Flask(__name__)
-ask = Ask(app, "/")
+ask = Ask(app, '/')
 logging.getLogger('flask_ask').setLevel(logging.DEBUG)
 
 my_table = Table(PIN_STP, PIN_DIR, PIN_MS1, PIN_MS2, PIN_EN, PIN_TRIG, PIN_ECHO, PIN_ENDSTOP)
@@ -294,26 +294,26 @@ my_bartender = Bartender(my_table)
 @ask.intent('MenuInquiry')
 def menu_inquiry():
 	my_bartender.build_menu()
-	my_statement = ", "
+	my_statement = ', '
 	for drink in my_bartender.current_menu:
-		my_statement.join(drink["name"])
-	return statement("The following drinks are available..." + my_statement)
+		my_statement.join(drink['name'])
+	return statement('The following drinks are available...' + my_statement)
 
 
 # What ingredients do we have?
 @ask.intent('IngredientInquiry')
 def ingredient_inquiry():
-	return statement("You've requested the ingredients available")
+	return statement('You've requested the ingredients available')
 
-# "Connect pump 3 to whiskey"
+# 'Connect pump 3 to whiskey'
 @ask.intent('UpdatePump', mapping = {'pump_id':'pump_id', 'ingredient':'ingredient'})
 def update_pump(pump_id, ingredient):
-	return statement("You've requested the {} on pump {}".format(ingredient, pump_id))
+	return statement('You\'ve requested the {} on pump {}'.format(ingredient, pump_id))
 
 @ask.intent('DrinkRequest', mapping = {'drink':'drink', 'quantity':'quantity'})
 
 def drink_request(drink, quantity):
-	return statement("You've requested {} {}".format(quantity, drink))
+	return statement('You\'ve requested {} {}'.format(quantity, drink))
 
 if __name__ == '__main__':
 	if 'ASK_VERIFY_REQUESTS' in os.environ:

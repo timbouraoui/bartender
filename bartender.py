@@ -326,6 +326,3 @@ if __name__ == '__main__':
 	except KeyboardInterrupt:
 		print('keyboard interrupt occurred')
 		GPIO.cleanup()
-	finally:
-		print('finally occurred')
-		GPIO.cleanup()

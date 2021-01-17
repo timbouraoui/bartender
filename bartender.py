@@ -248,7 +248,13 @@ class Bartender:
 
 	#adds drinks from drink_list to the menu if all ingredients are hooked up to the pump
 	def build_menu(self, drink_list):
-		self.current_menu = []
+		self.current_menu = [{
+        "name": "test drink",
+        "ingredients": {
+            "water": 50,
+            "jacob": 150
+        }
+    }]
 		for drink in drink_list:
 			drink_flag = 1
 			for ingredient in drink['ingredients']:
@@ -294,11 +300,11 @@ my_bartender = Bartender(my_table)
 # What's on the menu?
 @ask.intent('MenuInquiry')
 def menu_inquiry():
-	my_bartender.build_menu()
-	my_statement = ', '
-	for drink in my_bartender.current_menu:
-		my_statement.join(drink['name'])
-	return statement('The following drinks are available...' + my_statement)
+	# my_bartender.build_menu()
+	my_statement = 'The following drinks are available '
+	# for drink in my_bartender.current_menu:
+	# 	my_statement = my_statement + drink['name'] + ', '
+	return statement(my_statement)
 
 
 # What ingredients do we have?

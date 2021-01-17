@@ -280,6 +280,18 @@ class Bartender:
 		time.sleep(amount)
 		GPIO.output(pin, GPIO.LOW)
 
+app = Flask(__name__)
+ask = Ask(app, '/')
+logging.getLogger('flask_ask').setLevel(logging.DEBUG)
+
+my_table = Table(PIN_STP, PIN_DIR, PIN_MS1, PIN_MS2, PIN_EN, PIN_TRIG, PIN_ECHO, PIN_ENDSTOP)
+my_bartender = Bartender(my_table)
+
+if 'ASK_VERIFY_REQUESTS' in os.environ:
+	if str(os.environ.get('ASK_VERIFY_REQUESTS', '')).lower() == 'false':
+		app.config['ASK_VERIFY_REQUESTS'] = False
+	app.run(debug=True)
+
 # What's on the menu?
 @ask.intent('MenuInquiry')
 def menu_inquiry():
@@ -288,7 +300,6 @@ def menu_inquiry():
 	for drink in my_bartender.current_menu:
 		my_statement = my_statement + drink['name'] + ', '
 	return statement(my_statement)
-
 
 # What ingredients do we have?
 @ask.intent('IngredientInquiry')
@@ -307,15 +318,3 @@ def update_pump(pump_id, ingredient):
 @ask.intent('DrinkRequest', mapping = {'drink':'drink', 'quantity':'quantity'})
 def drink_request(drink, quantity):
 	return statement('You\'ve requested {} {}'.format(quantity, drink))
-
-app = Flask(__name__)
-ask = Ask(app, '/')
-logging.getLogger('flask_ask').setLevel(logging.DEBUG)
-
-my_table = Table(PIN_STP, PIN_DIR, PIN_MS1, PIN_MS2, PIN_EN, PIN_TRIG, PIN_ECHO, PIN_ENDSTOP)
-my_bartender = Bartender(my_table)
-
-if 'ASK_VERIFY_REQUESTS' in os.environ:
-	if str(os.environ.get('ASK_VERIFY_REQUESTS', '')).lower() == 'false':
-		app.config['ASK_VERIFY_REQUESTS'] = False
-	app.run(debug=True)

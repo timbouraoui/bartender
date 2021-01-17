@@ -303,7 +303,7 @@ def menu_inquiry():
 # What ingredients do we have?
 @ask.intent('IngredientInquiry')
 def ingredient_inquiry():
-	return statement('You've requested the ingredients available')
+	return statement('You\'ve requested the ingredients available')
 
 # 'Connect pump 3 to whiskey'
 @ask.intent('UpdatePump', mapping = {'pump_id':'pump_id', 'ingredient':'ingredient'})

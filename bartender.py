@@ -12,7 +12,7 @@ from flask_ask import Ask, request, session, question, statement
 from drinks import drink_list
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
+# GPIO.setwarnings(False)
 
 # stepper pins
 PIN_STP = 2
@@ -178,21 +178,19 @@ class Bartender:
 			GPIO.setup(self.pump_list[pump]['pin'], GPIO.OUT)
 
 	# update pump when switching over to ingredient
-	def update_pump_list(self, pump_id, ingredient):
+	def update_pump(self, pump_id, ingredient):
+		prev_ingredient = ''
 		if pump_id > 0 & pump_id < 9:
 			for pump in self.pump_list:
 					if self.pump_list[pump]['id'] == pump_id:
+						prev_ingredient = self.pump_list[pump]['ingredient']
 						self.pump_list[pump]['ingredient'] = ingredient
 
 			file = open('pump_config.json', 'w')
 			json.dump(self.pump_list, file)
 			file.close()
 
-			self.update_ingredients_list()
-
-			return statement('Pump {} is now connected to {}. Thanks good sir cunt.'.format(pump_id, ingredient))
-		else:
-			return statement('Sorry cunt, pump number invalid.')
+		return prev_ingredient
 
 		# primes all pumps - might have to do this sequentially instead of in parallel because of current issues
 
@@ -248,13 +246,7 @@ class Bartender:
 
 	#adds drinks from drink_list to the menu if all ingredients are hooked up to the pump
 	def build_menu(self, drink_list):
-		self.current_menu = [{
-        "name": "test drink",
-        "ingredients": {
-            "water": 50,
-            "jacob": 150
-        }
-    }]
+		self.current_menu = []
 		for drink in drink_list:
 			drink_flag = 1
 			for ingredient in drink['ingredients']:
@@ -300,30 +292,40 @@ my_bartender = Bartender(my_table)
 # What's on the menu?
 @ask.intent('MenuInquiry')
 def menu_inquiry():
-	# my_bartender.build_menu()
+	my_bartender.build_menu(drink_list)
 	my_statement = 'The following drinks are available '
-	# for drink in my_bartender.current_menu:
-	# 	my_statement = my_statement + drink['name'] + ', '
+	for drink in my_bartender.current_menu:
+		my_statement = my_statement + drink['name'] + ', '
 	return statement(my_statement)
 
 
 # What ingredients do we have?
 @ask.intent('IngredientInquiry')
 def ingredient_inquiry():
-	return statement('You\'ve requested the ingredients available')
+	my_statement = 'The following ingredients are currently hooked up to the pumps. '
+	for pump in my_bartender.pump_list:
+		my_statement = my_statement + my_bartender[pump]['ingredient'] + ', '
+	return statement(my_statement)
 
 # 'Connect pump 3 to whiskey'
 @ask.intent('UpdatePump', mapping = {'pump_id':'pump_id', 'ingredient':'ingredient'})
 def update_pump(pump_id, ingredient):
-	return statement('You\'ve requested the {} on pump {}'.format(ingredient, pump_id))
+	prev_ingredient = my_bartender.update_pump(pump_id, ingredient)
+	return statement('You\'ve changed pump {} from {} to {}'.format(pump_id, prev_ingredient, ingredient))
 
 @ask.intent('DrinkRequest', mapping = {'drink':'drink', 'quantity':'quantity'})
-
 def drink_request(drink, quantity):
 	return statement('You\'ve requested {} {}'.format(quantity, drink))
 
 if __name__ == '__main__':
-	if 'ASK_VERIFY_REQUESTS' in os.environ:
-		if str(os.environ.get('ASK_VERIFY_REQUESTS', '')).lower() == 'false':
-			app.config['ASK_VERIFY_REQUESTS'] = False
-	app.run(debug=True)
+	try:
+		if 'ASK_VERIFY_REQUESTS' in os.environ:
+			if str(os.environ.get('ASK_VERIFY_REQUESTS', '')).lower() == 'false':
+				app.config['ASK_VERIFY_REQUESTS'] = False
+			app.run(debug=True)
+	except KeyboardInterrupt:
+		print('keyboard interrupt occurred')
+		GPIO.cleanup()
+	finally:
+		print('finally occurred')
+		GPIO.cleanup()

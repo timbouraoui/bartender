@@ -12,6 +12,7 @@ from flask_ask import Ask, request, session, question, statement
 from drinks import drink_list
 
 GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
 
 # stepper pins
 PIN_STP = 2
@@ -317,7 +318,6 @@ def drink_request(drink, quantity):
 
 if __name__ == '__main__':
 	if 'ASK_VERIFY_REQUESTS' in os.environ:
-		verify = str(os.environ.get('ASK_VERIFY_REQUESTS', '')).lower()
-        if verify == 'false':
-            app.config['ASK_VERIFY_REQUESTS'] = False
+		if str(os.environ.get('ASK_VERIFY_REQUESTS', '')).lower() == 'false':
+			app.config['ASK_VERIFY_REQUESTS'] = False
 	app.run(debug=True)

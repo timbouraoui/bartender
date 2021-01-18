@@ -181,15 +181,14 @@ class Bartender:
 	# update pump when switching over to ingredient
 	def update_pump(self, pump_id, ingredient):
 		prev_ingredient = ''
-		if pump_id > 0 & pump_id <= self.MAX_PUMPS:
-			for pump in self.pump_list:
-					if self.pump_list[pump]['id'] == pump_id:
-						prev_ingredient = self.pump_list[pump]['ingredient']
-						self.pump_list[pump]['ingredient'] = ingredient
+		for pump in self.pump_list:
+				if self.pump_list[pump]['id'] == pump_id:
+					prev_ingredient = self.pump_list[pump]['ingredient']
+					self.pump_list[pump]['ingredient'] = ingredient
 
-			file = open('pump_config.json', 'w')
-			json.dump(self.pump_list, file)
-			file.close()
+		file = open('pump_config.json', 'w')
+		json.dump(self.pump_list, file)
+		file.close()
 
 		return prev_ingredient
 
@@ -310,7 +309,6 @@ def ingredient_inquiry():
 # 'Connect pump 3 to whiskey'
 @ask.intent('UpdatePump', mapping = {'pump_id':'pump_id', 'ingredient':'ingredient'})
 def update_pump(pump_id, ingredient):
-	pump_id = int(pump_id)
 	prev_ingredient = my_bartender.update_pump(pump_id, ingredient)
 	return statement('You\'ve changed pump {} from {} to {}'.format(pump_id, prev_ingredient, ingredient))
 

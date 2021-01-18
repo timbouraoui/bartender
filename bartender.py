@@ -280,6 +280,32 @@ class Bartender:
 		time.sleep(amount)
 		GPIO.output(pin, GPIO.LOW)
 
+# What's on the menu?
+@ask.intent('MenuInquiry')
+def menu_inquiry():
+	my_bartender.build_menu(drink_list)
+	my_statement = 'The following drinks are available '
+	for drink in my_bartender.current_menu:
+		my_statement = my_statement + drink['name'] + ', '
+	return statement(my_statement)
+
+# What ingredients do we have?
+@ask.intent('IngredientInquiry')
+def ingredient_inquiry():
+	my_statement = 'The following ingredients are currently hooked up to the pumps. '
+	for pump in my_bartender.pump_list:
+		my_statement = my_statement + my_bartender[pump]['ingredient'] + ', '
+	return statement(my_statement)
+
+# 'Connect pump 3 to whiskey'
+@ask.intent('UpdatePump', mapping = {'pump_id':'pump_id', 'ingredient':'ingredient'})
+def update_pump(pump_id, ingredient):
+	prev_ingredient = my_bartender.update_pump(pump_id, ingredient)
+	return statement('You\'ve changed pump {} from {} to {}'.format(pump_id, prev_ingredient, ingredient))
+
+@ask.intent('DrinkRequest', mapping = {'drink':'drink', 'quantity':'quantity'})
+def drink_request(drink, quantity):
+	return statement('You\'ve requested {} {}'.format(quantity, drink))
 
 if __name__ == "__main__":
 	print('running')
@@ -297,29 +323,3 @@ if __name__ == "__main__":
 		app.run(debug=True)
 
 	print('flask setup complete')
-	# What's on the menu?
-	@ask.intent('MenuInquiry')
-	def menu_inquiry():
-		my_bartender.build_menu(drink_list)
-		my_statement = 'The following drinks are available '
-		for drink in my_bartender.current_menu:
-			my_statement = my_statement + drink['name'] + ', '
-		return statement(my_statement)
-
-	# What ingredients do we have?
-	@ask.intent('IngredientInquiry')
-	def ingredient_inquiry():
-		my_statement = 'The following ingredients are currently hooked up to the pumps. '
-		for pump in my_bartender.pump_list:
-			my_statement = my_statement + my_bartender[pump]['ingredient'] + ', '
-		return statement(my_statement)
-
-	# 'Connect pump 3 to whiskey'
-	@ask.intent('UpdatePump', mapping = {'pump_id':'pump_id', 'ingredient':'ingredient'})
-	def update_pump(pump_id, ingredient):
-		prev_ingredient = my_bartender.update_pump(pump_id, ingredient)
-		return statement('You\'ve changed pump {} from {} to {}'.format(pump_id, prev_ingredient, ingredient))
-
-	@ask.intent('DrinkRequest', mapping = {'drink':'drink', 'quantity':'quantity'})
-	def drink_request(drink, quantity):
-		return statement('You\'ve requested {} {}'.format(quantity, drink))

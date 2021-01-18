@@ -24,13 +24,13 @@ drink_list = [
             "vodka": 15,
             "tequila": 15,
             "coke": 100,
-            "oj": 30
+            "orange juice": 30
         }
     }, {
         "name": "screwdriver",
         "ingredients": {
             "vodka": 50,
-            "oj": 150
+            "orange juice": 150
         }
     }, {
         "name": "margarita",
@@ -42,13 +42,13 @@ drink_list = [
         "name": "gin and juice",
         "ingredients": {
                 "gin": 50,
-                "oj": 150
+                "orange juice": 150
         }
     }, {
         "name": "tequila sunrise",
         "ingredients": {
             "tequila": 50,
-            "oj": 150
+            "orange juice": 150
         }
     }
 ]

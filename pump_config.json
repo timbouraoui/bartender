@@ -6,7 +6,7 @@
 		"ingredient": "gin"
 	},
 	"pump_2": {
-		"name": "Pump 2",
+		"name": "Pump 9000",
 		"id": 2,
 		"pin": 27,
 		"ingredient": "tonic"
@@ -17,7 +17,7 @@
 		"pin": 22,
 		"ingredient": "void"
 	},
-	"pump_4":{
+	"pump_4": {
 		"name": "Pump 4",
 		"id": 4,
 		"pin": 23,

@@ -301,7 +301,7 @@ def menu_inquiry():
 def ingredient_inquiry():
 	my_statement = 'The following ingredients are currently hooked up to the pumps. '
 	for pump in my_bartender.pump_list:
-		my_statement = my_statement + my_bartender.pump_list[pump]['ingredient'] + ', '
+		my_statement = my_statement + my_bartender.pump_list[pump]['name'] + ' is ' + my_bartender.pump_list[pump]['ingredient'] + '. '
 	return statement(my_statement)
 
 # 'Connect pump 3 to whiskey'

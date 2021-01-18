@@ -15,36 +15,36 @@
 		"name": "Pump 3",
 		"id": 3,
 		"pin": 22,
-		"ingredient": null
+		"ingredient": "void"
 	},
 	"pump_4":{
 		"name": "Pump 4",
 		"id": 4,
 		"pin": 23,
-		"ingredient": null
+		"ingredient": "void"
 	},
 	"pump_5": {
 		"name": "Pump 5",
 		"id": 5,
 		"pin": 24,
-		"ingredient": null
+		"ingredient": "void"
 	},
 	"pump_6": {
 		"name": "Pump 6",
 		"id": 6,
 		"pin": 25,
-		"ingredient": null
+		"ingredient": "void"
 	},
 	"pump_7": {
 		"name": "Pump 7",
 		"id": 7,
 		"pin": 25,
-		"ingredient": null
+		"ingredient": "void"
 	},
 	"pump_8": {
 		"name": "Pump 8",
 		"id": 8,
 		"pin": 25,
-		"ingredient": null
+		"ingredient": "void"
 	}
 }

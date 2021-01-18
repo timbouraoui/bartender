@@ -317,10 +317,10 @@ def update_pump(pump_id):
 @ask.intent('DrinkRequest')
 def drink_request(drink, quantity):
 	multi_drink = request.intent.slots.drink.resolutions.resolutionsPerAuthority[0]['values']
-	multi_quantity = request.intent.slots.quantity.resolutions.resolutionsPerAuthority[0]['values']
+	# multi_quantity = request.intent.slots.quantity.resolutions.resolutionsPerAuthority[0]['values']
 	my_statement = 'You\'ve requested '
 	for i in range(len(multi_drink)):
-		my_statement = my_statement + '{} {}'.format(multi_quantity[i]['value']['id'], multi_drink[i]['value']['id']) + '. '
+		my_statement = my_statement + '{} {}'.format(quantity, multi_drink[i]['value']['id']) + '. '
 	return statement(my_statement)
 
 if __name__ == "__main__":

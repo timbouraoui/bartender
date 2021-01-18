@@ -1,49 +1,49 @@
 {
 	"pump_1": {
 		"name": "Pump 1",
-		"id": 1,
+		"id": "a",
 		"pin": 17,
 		"ingredient": "gin"
 	},
 	"pump_2": {
 		"name": "Pump 9000",
-		"id": 2,
+		"id": "b",
 		"pin": 27,
 		"ingredient": "tonic"
 	},
 	"pump_3": {
 		"name": "Pump 3",
-		"id": 3,
+		"id": "c",
 		"pin": 22,
 		"ingredient": "void"
 	},
 	"pump_4": {
 		"name": "Pump 4",
-		"id": 4,
+		"id": "d",
 		"pin": 23,
 		"ingredient": "void"
 	},
 	"pump_5": {
 		"name": "Pump 5",
-		"id": 5,
+		"id": "e",
 		"pin": 24,
 		"ingredient": "void"
 	},
 	"pump_6": {
 		"name": "Pump 6",
-		"id": 6,
+		"id": "f",
 		"pin": 25,
 		"ingredient": "void"
 	},
 	"pump_7": {
 		"name": "Pump 7",
-		"id": 7,
+		"id": "g",
 		"pin": 25,
 		"ingredient": "void"
 	},
 	"pump_8": {
 		"name": "Pump 8",
-		"id": 8,
+		"id": "h",
 		"pin": 25,
 		"ingredient": "void"
 	}

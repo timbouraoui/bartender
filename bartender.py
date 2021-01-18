@@ -8,6 +8,7 @@ import threading
 import traceback
 from flask import Flask
 from flask_ask import Ask, request, session, question, statement
+from enum import Enum
 
 from drinks import drink_list
 
@@ -27,10 +28,17 @@ PIN_ECHO = 2
 
 PIN_ENDSTOP = 2
 
+class cup_status(Enum):
+	ABSENT = 1
+	PRESENT = 2
+	FILLED = 3
+
 class Table:
 	def __init__(self, PIN_STP, PIN_DIR, PIN_MS1, PIN_MS2, PIN_EN, PIN_TRIG, PIN_ECHO, PIN_ENDSTOP):
 		# steps per cup location
 		self.stepper_constant = 50
+		# distance from US sensor
+		self.CUP_DIST = 10
 
 		# constants for stepper motor direction
 		self.FORWARD = GPIO.HIGH
@@ -62,12 +70,13 @@ class Table:
 		# GPIO.output(self.pin_ms2, GPIO.LOW)
 		# GPIO.output(self.pin_en, GPIO.HIGH)
 
-		self.cups=[0,0,0,0,0,0]
+		self.cups=[cup_status.ABSENT, cup_status.ABSENT, cup_status.ABSENT,
+					cup_status.ABSENT, cup_status.ABSENT, cup_status.ABSENT]
 		self.current_table_location = 0
 
 	# determines if there is a cup present based on distance
 	def cup_present(self):
-		if distance() < 10: return True
+		if distance() < self.CUP_DIST: return True
 		else: return False
 
 	# finds distance of object in front of ultrasonic sensor
@@ -100,16 +109,16 @@ class Table:
 
 	# uses the US sensor to fill the list self.cups with the locations of the cups
 	def find_cup_locations(self):
-		self.cups=[0,0,0,0,0,0]
 		for cup_location in range(6):
 			set_table_location(cup_location)
-			if (cup_present()):	cups[cup_location] = 1
+			if cup_present() and cups[cup_location] != cup_status.FILLED:
+				cups[cup_location] = cup_status.PRESENT
 
 	# count the number of cups in the list self.cups
-	def find_num_cups(self):
+	def find_num_present_cups(self):
 		count = 0
 		for cup in self.cups:
-			count += 1
+			if cup == cup_status.PRESENT: count += 1
 		return count
 
 	# rotates the table backward until the endstop is clicked
@@ -129,6 +138,8 @@ class Table:
 			self.move_backward(-1*location_diff)
 		else:
 			self.move_forward(location_diff)
+
+		self.current_table_location = new_location
 
 	# rotates the table forward one step
 	def step_forward(self):
@@ -259,7 +270,7 @@ class Bartender:
 			if drink_flag:	self.current_menu.append(drink)
 
 	def make_drink(self, drink, cup_location):
-		self.my_table.set_table_location(cup_location-1)
+		self.my_table.set_table_location(cup_location)
 
 		pumpThreads = []
 		for ingredient in drink['ingredients']:
@@ -275,6 +286,8 @@ class Bartender:
 		# wait for threads to finish
 		for thread in pumpThreads:
 			thread.join()
+
+		my_table.cups[cup_location] = cup_status.FILLED
 
 	def pour(self, pin, amount):
 		GPIO.output(pin, GPIO.HIGH)
@@ -314,13 +327,39 @@ def update_pump(pump_id):
 	prev_ingredient = my_bartender.update_pump(pump_id, ingredient)
 	return statement('You\'ve changed pump {} from {} to {}'.format(pump_id, prev_ingredient, ingredient))
 
+# used when filled cups are taken from the table
+@ask.intent('ThankYou')
+def thank_you():
+	for cup in my_bartender.my_table.cups:
+		if cup == cup_status.FILLED: cup = cup_status.ABSENT
+
+# make quantity amount of drink drinks if there are cups present - shouldn't make drinks unless there are drinks present
 @ask.intent('DrinkRequest')
 def drink_request(drink, quantity):
-	multi_drink = request.intent.slots.drink.resolutions.resolutionsPerAuthority[0]['values']
-	# multi_quantity = request.intent.slots.quantity.resolutions.resolutionsPerAuthority[0]['values']
-	my_statement = 'You\'ve requested '
-	for i in range(len(multi_drink)):
-		my_statement = my_statement + '{} {}'.format(quantity, multi_drink[i]['value']['id']) + '. '
+	drank = {}
+	my_statement = 'I have finished making the following. '
+	for my_drink in drink_list:
+		if my_drink['name'] == drink: drank = my_drink
+
+	my_bartender.my_table.home_table()
+
+	# if there are enough PRESENT cups
+	if my_bartender.my_table.find_num_present_cups() >= quantity:
+		for index, cup in enumerate(my_bartender.my_table.cups):
+			if cup == cup_status.PRESENT:
+				my_bartender.make_drink(drank, index)
+				my_statement = my_statement + 'A {} in cup number {}'.format(drank['name'], index)
+	# attempt to find new PRESENT cups
+	else:
+		my_bartender.my_table.find_cup_locations()
+		if my_bartender.my_table.find_num_present_cups() >= quantity:
+			for index, cup in enumerate(my_bartender.my_table.cups):
+				if cup == cup_status.PRESENT:
+					my_bartender.make_drink(drank, index)
+					my_statement = my_statement + 'A {} in cup number {}'.format(drank['name'], index)
+		else:
+			return statement('There are not enough empty cups on the plate. If you see empty cups on the plate, try saying "thank you" to let me know you\'ve grabbed the previous drinks')
+	my_statement = my_statement + ' Enjoy!'
 	return statement(my_statement)
 
 if __name__ == "__main__":

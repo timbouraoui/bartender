@@ -308,8 +308,11 @@ def ingredient_inquiry():
 	return statement(my_statement)
 
 # 'Connect pump 3 to whiskey'
-@ask.intent('UpdatePump', mapping = {'pump_id':'pump_id', 'ingredient':'ingredient'})
+@ask.intent('UpdatePump', mapping = {'ingredient':'ingredient'})
 def update_pump(pump_id, ingredient):
+	print('##################################\n')
+	print(request.intent.slots.ingredient.resolutions.resolutionsPerAuthority[0]['values'][0]['value']['id'])
+	print('##################################\n')
 	pump_id = int(pump_id)
 	prev_ingredient = my_bartender.update_pump(pump_id, ingredient)
 	return statement('You\'ve changed pump {} from {} to {}'.format(pump_id, prev_ingredient, ingredient))

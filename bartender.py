@@ -157,6 +157,7 @@ class Bartender:
 		self.PRIMING_DIST = 50
 		self.CLEANING_DIST = 200
 		self.FLOW_RATE = 60.0/100.0
+		self.MAX_PUMPS = 8
 
 		self.pump_list = {}
 		self.current_menu = []
@@ -180,7 +181,7 @@ class Bartender:
 	# update pump when switching over to ingredient
 	def update_pump(self, pump_id, ingredient):
 		prev_ingredient = ''
-		if pump_id > 0 & pump_id < 9:
+		if pump_id > 0 & pump_id <= self.MAX_PUMPS:
 			for pump in self.pump_list:
 					if self.pump_list[pump]['id'] == pump_id:
 						prev_ingredient = self.pump_list[pump]['ingredient']
@@ -300,11 +301,10 @@ def menu_inquiry():
 @ask.intent('IngredientInquiry')
 def ingredient_inquiry():
 	my_statement = 'The following ingredients are currently hooked up to the pumps. '
-	print(my_bartender.pump_list)
-	my_bartender.load_pump_list()
-	print(my_bartender.pump_list)
-	for pump in my_bartender.pump_list:
-		my_statement = my_statement + my_bartender.pump_list[pump]['name'] + ' is ' + my_bartender.pump_list[pump]['ingredient'] + '. '
+	for i in range(my_bartender.MAX_PUMPS)+1:
+		for pump in my_bartender.pump_list:
+			if my_bartender.pump_list[pump]['id'] == i:
+				my_statement = my_statement + my_bartender.pump_list[pump]['name'] + ' is ' + my_bartender.pump_list[pump]['ingredient'] + '. '
 	return statement(my_statement)
 
 # 'Connect pump 3 to whiskey'

@@ -300,6 +300,9 @@ def menu_inquiry():
 @ask.intent('IngredientInquiry')
 def ingredient_inquiry():
 	my_statement = 'The following ingredients are currently hooked up to the pumps. '
+	print(my_bartender.pump_list)
+	my_bartender.load_pump_list()
+	print(my_bartender.pump_list)
 	for pump in my_bartender.pump_list:
 		my_statement = my_statement + my_bartender.pump_list[pump]['name'] + ' is ' + my_bartender.pump_list[pump]['ingredient'] + '. '
 	return statement(my_statement)

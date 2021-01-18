@@ -300,8 +300,8 @@ def menu_inquiry():
 @ask.intent('IngredientInquiry')
 def ingredient_inquiry():
 	my_statement = 'The following ingredients are currently hooked up to the pumps. '
-	# for pump in my_bartender.pump_list:
-	# 	my_statement = my_statement + my_bartender[pump]['ingredient'] + ', '
+	for pump in my_bartender.pump_list:
+		my_statement = my_statement + my_bartender.pump_list[pump]['ingredient'] + ', '
 	return statement(my_statement)
 
 # 'Connect pump 3 to whiskey'
@@ -318,4 +318,4 @@ if __name__ == "__main__":
 	app.config['ASK_VERIFY_REQUESTS'] = False
 	app.run(debug=True)
 
-	print('flask setup complete')
+	GPIO.cleanup()

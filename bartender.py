@@ -308,16 +308,20 @@ def ingredient_inquiry():
 	return statement(my_statement)
 
 # 'Connect pump 3 to whiskey'
-@ask.intent('UpdatePump')
+@ask.intent('UpdatePump', convert={'pump_id':int})
 def update_pump(pump_id):
 	ingredient = request.intent.slots.ingredient.resolutions.resolutionsPerAuthority[0]['values'][0]['value']['id']
-	pump_id = int(pump_id)
 	prev_ingredient = my_bartender.update_pump(pump_id, ingredient)
 	return statement('You\'ve changed pump {} from {} to {}'.format(pump_id, prev_ingredient, ingredient))
 
 @ask.intent('DrinkRequest')
 def drink_request(drink, quantity):
-	return statement('You\'ve requested {} {}'.format(quantity, drink))
+	multi_drink = request.intent.slots.drink.resolutions.resolutionsPerAuthority[0]['values']
+	multi_quantity = request.intent.slots.quantity.resolutions.resolutionsPerAuthority[0]['values']
+	my_statement = 'You\'ve requested '
+	for i in range(len(multi_drink)):
+		my_statement = my_statement + '{} {}'.format(multi_quantity[i]['value']['id'], multi_drink[i]['value']['id']) + '. '
+	return statement(my_statement)
 
 if __name__ == "__main__":
 	app.config['ASK_VERIFY_REQUESTS'] = False

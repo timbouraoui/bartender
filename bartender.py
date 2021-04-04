@@ -16,15 +16,15 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
 # stepper pins
-PIN_STP = 2
-PIN_DIR = 2
-PIN_MS1 = 2
-PIN_MS2 = 2
-PIN_EN = 2
+PIN_STP = 26
+PIN_DIR = 19
+PIN_MS1 = 13
+PIN_MS2 = 5
+PIN_EN = 6
 
 #sensor pins
-PIN_TRIG = 2
-PIN_ECHO = 2
+PIN_TRIG = 17
+PIN_ECHO = 18
 
 PIN_ENDSTOP = 2
 

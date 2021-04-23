@@ -366,4 +366,10 @@ if __name__ == "__main__":
 	app.config['ASK_VERIFY_REQUESTS'] = False
 	app.run(debug=True)
 
+	while True:
+		x = input('What you tryna do')
+
+		if x == '1':
+			print(menu_inquiry())
+
 	GPIO.cleanup()

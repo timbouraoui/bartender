@@ -24,6 +24,7 @@ drink_list = [
     }, {
         "name": "water",
         "ingredients": {
+            "water": 200
         }
     }, {
         "name": "Gin & Tonic",
@@ -72,3 +73,11 @@ for drink in drink_list:
     print(drink['name'])
     for ing in drink['ingredients']:
         print(drink['ingredients'][ing])
+
+if __name__ == "__main__":
+
+    while True:
+        x = input('What you tryna do')
+
+        if x == '1':
+            print("You typed 1")
